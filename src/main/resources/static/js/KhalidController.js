@@ -6,6 +6,9 @@ angular.module('KhalidApp', []).controller(
 			$scope.getAirportInfo = function(airportCode) {
 				console.log('User Entered: ' + airportCode);
 				// REST Call "GET"
+				if (airportCode == undefined || airportCode.trim() == '') {
+					return;
+				}
 				$http.get('http://localhost:8080/lookUp?code=' + airportCode)
 						.then(function(response) {
 							$scope.myData = response.data;

@@ -11,6 +11,10 @@ public class AppProperties {
 	@Autowired(required = true)
 	private Environment env;
 
+	public String getProperty(String propName) {
+		return env.getProperty(propName);
+	}
+	
 	public String getCarriers(String airportCode) {
 		String value = env.getProperty(airportCode.toLowerCase() + ".carriers");
 		return value;

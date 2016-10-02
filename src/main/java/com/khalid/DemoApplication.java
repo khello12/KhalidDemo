@@ -117,7 +117,8 @@ public class DemoApplication<flightDetails> {
 
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader("/Users/Khalid/Development/airportsCode.txt"));
+			String filePath = appProperties.getProperty("airportlist.file.path");
+			br = new BufferedReader(new FileReader(filePath));
 
 			String line = br.readLine();
 
