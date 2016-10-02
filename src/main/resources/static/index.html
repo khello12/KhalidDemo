@@ -1,0 +1,93 @@
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+<!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script> -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
+
+
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/angular.min.js"></script>
+<script src="js/KhalidController.js"></script>
+
+<div ng-app="KhalidApp">
+	<div ng-controller="KhalidController">
+		<h1>{{greeting}}</h1>
+		<form>
+			<input type="text" ng-model="airportCode" />
+
+			<button ng-click="getAirportInfo(airportCode)" type="submit"
+				class="btn btn-primary btn-sm">Lookup</button>
+
+			<button ng-click="getAllAirports()" class="btn btn-primary btn-sm">Get
+				All Airports</button>
+
+			<span class="glyphicon glyphicon-search"></span>
+
+		</form>
+		<div ng-show="myData != null">
+			<div class="alert alert-success">
+				<strong>Success!</strong>
+			</div>
+			<input type="text" ng-model="phoneNo" />
+
+			<button ng-click="updatePhone(phoneNo,airportCode)"
+				class="btn btn-primary btn-sm">Update Phone</button>
+
+			<div class="row">
+				<div class="col-md-4">
+					<b>Airport Code:</b> {{myData.code}}<br /> <b>Airport Name:</b>
+					{{myData.name}}<br /> <b>Phone Number:</b> {{myData.phoneNumber}}<br />
+				</div>
+
+				<div class="col-md-4">
+					<b>Address:</b> <br /> {{myData.address.street1}}<br />
+					{{myData.address.street2}}<br /> {{myData.address.city}},
+					{{myData.address.state}} {{myData.address.zip}} <br />
+				</div>
+			</div>
+			<br /> <strong>Carriers:</strong>
+			<div
+				ng-show="myData.flightDetails != null && myData.flightDetails.carriers != null">
+				<div class="row">
+					<div class="col-md-2">
+						<table class="table table-striped">
+							<tbody>
+								<tr ng-repeat="myCarrierName in myData.flightDetails.carriers">
+									<td>{{myCarrierName}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="row"></div>
+			</div>
+		</div>
+
+		<div ng-show="allAirports != null">
+			<table class="table table-striped">
+				<tr>
+					<th></th>
+					<th>CODE</th>
+					<th>AIRPORT NAME</th>
+					<th>ADDRESS</th>
+					<th>CITY</th>
+				</tr>
+				<tr ng-repeat="myAirport in allAirports">
+					<td><button ng-click="deleteAirport(myAirport.code)"
+							class="btn btn-primary btn-sm">Delete</button></td>
+					<td>{{myAirport.code}}</td>
+					<td>{{myAirport.name}}</td>
+					<td>{{myAirport.address.street1}}
+						{{myAirport.address.street2}}</td>
+					<td>{{myAirport.address.city}}</td>
+					<td>{{myAirport.carriers}}</td>
+				</tr>
+			</table>
+		</div>
+
+
+	</div>
+</div>
