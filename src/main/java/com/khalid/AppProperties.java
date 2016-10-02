@@ -9,7 +9,7 @@ import com.khalid.util.KhalidUtil;
 @Component
 public class AppProperties {
 	@Autowired(required = true)
-	private Environment env;
+	private Environment env; //Auto-Wired which automatically reads application.properties and store in "env"
 
 	public String getProperty(String propName) {
 		return env.getProperty(propName);

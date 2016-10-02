@@ -11,50 +11,54 @@
 <script src="js/angular.min.js"></script>
 <script src="js/KhalidController.js"></script>
 
+<!-- The following two lines "ng-app" & "ng-controller" are VERY important to utilize and use the controller  -->
+
 <div ng-app="KhalidApp">
 	<div ng-controller="KhalidController">
 		<h1>{{greeting}}</h1>
 		<form>
 			<input type="text" ng-model="airportCode" />
+			
+			<!-- The buttons will use the methods based on "ng-click" -->
+			<button ng-click="getAirportInfo(airportCode)" type="submit" class="btn btn-primary btn-sm">Lookup</button>
 
-			<button ng-click="getAirportInfo(airportCode)" type="submit"
-				class="btn btn-primary btn-sm">Lookup</button>
-
-			<button ng-click="getAllAirports()" class="btn btn-primary btn-sm">Get
-				All Airports</button>
+			<button ng-click="getAllAirports()" class="btn btn-primary btn-sm">Get All Airports</button>
 
 			<span class="glyphicon glyphicon-search"></span>
-
 		</form>
-		<div ng-show="myData != null">
-			<div class="alert alert-success">
-				<strong>Success!</strong>
-			</div>
+		
+		<!-- Begin -- The following DIV is to show one Airport Details using "ng-show" -->
+		<div ng-show="oneAirportDetails != null">
+		
 			<input type="text" ng-model="phoneNo" />
 
 			<button ng-click="updatePhone(phoneNo,airportCode)"
 				class="btn btn-primary btn-sm">Update Phone</button>
-
+			
+			<div ng-show="showSuccess == true" class="alert alert-success">
+				<strong>Success!</strong>
+			</div>
+			
 			<div class="row">
 				<div class="col-md-4">
-					<b>Airport Code:</b> {{myData.code}}<br /> <b>Airport Name:</b>
-					{{myData.name}}<br /> <b>Phone Number:</b> {{myData.phoneNumber}}<br />
+					<b>Airport Code:</b> {{oneAirportDetails.code}}<br /> <b>Airport Name:</b>
+					{{oneAirportDetails.name}}<br /> <b>Phone Number:</b> {{oneAirportDetails.phoneNumber}}<br />
 				</div>
 
 				<div class="col-md-4">
-					<b>Address:</b> <br /> {{myData.address.street1}}<br />
-					{{myData.address.street2}}<br /> {{myData.address.city}},
-					{{myData.address.state}} {{myData.address.zip}} <br />
+					<b>Address:</b> <br /> {{oneAirportDetails.address.street1}}<br />
+					{{oneAirportDetails.address.street2}}<br /> {{oneAirportDetails.address.city}},
+					{{oneAirportDetails.address.state}} {{oneAirportDetails.address.zip}} <br />
 				</div>
 			</div>
 			<br /> <strong>Carriers:</strong>
 			<div
-				ng-show="myData.flightDetails != null && myData.flightDetails.carriers != null">
+				ng-show="oneAirportDetails.flightDetails != null && oneAirportDetails.flightDetails.carriers != null">
 				<div class="row">
 					<div class="col-md-2">
 						<table class="table table-striped">
 							<tbody>
-								<tr ng-repeat="myCarrierName in myData.flightDetails.carriers">
+								<tr ng-repeat="myCarrierName in oneAirportDetails.flightDetails.carriers">
 									<td>{{myCarrierName}}</td>
 								</tr>
 							</tbody>
@@ -65,6 +69,7 @@
 				<div class="row"></div>
 			</div>
 		</div>
+		<!-- End -- DIV is to show one Airport Details -->
 
 		<div ng-show="allAirports != null">
 			<table class="table table-striped">

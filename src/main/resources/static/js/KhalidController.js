@@ -4,14 +4,17 @@ angular.module('KhalidApp', []).controller(
 			$scope.greeting = "Airport Details";
 
 			$scope.getAirportInfo = function(airportCode) {
+				$scope.showSuccess = false;
 				console.log('User Entered: ' + airportCode);
 				// REST Call "GET"
 				if (airportCode == undefined || airportCode.trim() == '') {
 					return;
 				}
-				$http.get('http://localhost:8080/lookUp?code=' + airportCode)
-						.then(function(response) {
-							$scope.myData = response.data;
+				
+				var urlREST = 'http://localhost:8080/lookUp?code=' + airportCode;
+				
+				$http.get(urlREST).then(function(response) {
+							$scope.oneAirportDetails = response.data;
 							$scope.allAirports = null;
 							// console.log('My Response! ' +
 							// JSON.stringify(response));
@@ -24,17 +27,21 @@ angular.module('KhalidApp', []).controller(
 				// REST Call "POST"
 				$http.post('http://localhost:8080/enterInfo?phone=' + phoneNo + '&code=' + airportCode).then(
 						function(response) {
+							$scope.oneAirportDetails = response.data;
+							$scope.showSuccess = true;
+							
 							//$scope.myData = response.data;
-							 console.log('My Response! ' + JSON.stringify(response));
+							console.log('My Response! ' + JSON.stringify(response));
 						});
 			}
 			
 			$scope.getAllAirports = function() {
+				$scope.airportCode = null; //To clear the field of the airportCode
 				console.log('Get All Aiports');
 				// REST Call "GET"
-				$http.get('http://localhost:8080/getAll').then(function(response) {
+				$http.get('http://localhost:8080/getAllAirports').then(function(response) {
 							$scope.allAirports = response.data;
-							$scope.myData = null;
+							$scope.oneAirportDetails = null;
 							// console.log('My Response! ' +
 							// JSON.stringify(response));
 						});
@@ -45,7 +52,7 @@ angular.module('KhalidApp', []).controller(
 				$http.delete('http://localhost:8080/deleteAirport?code=' + airportCode).then(
 						function(response) {
 							$scope.allAirports = response.data;
-							$scope.myData = null;
+							$scope.oneAirportDetails = null;
 						});
 			}
 		});

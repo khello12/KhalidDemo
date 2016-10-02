@@ -24,7 +24,8 @@ import com.khalid.util.KhalidUtil;
 @RestController
 public class DemoApplication<flightDetails> {
 	@Autowired(required = true)
-	private AppProperties appProperties;
+	private AppProperties appProperties; // Auto-Wired through Springs. Which
+											// automatically defines it.
 
 	private static HashMap<String, AirportDetails> AIRPORT_LIST = null;
 
@@ -51,13 +52,13 @@ public class DemoApplication<flightDetails> {
 		return airportDetails;
 	}
 
-	@RequestMapping(value = "/getAll", method = RequestMethod.GET)
-	public ArrayList<AirportDetails> getAllMethod() {
+	@RequestMapping(value = "/getAllAirports", method = RequestMethod.GET)
+	public ArrayList<AirportDetails> getAllAirportsMethod() {
 		HashMap<String, AirportDetails> cache = getAirportList();
 
 		ArrayList<AirportDetails> result = new ArrayList<AirportDetails>();
 
-		logger.info("/getAll");
+		logger.info("/getAllAirports");
 
 		for (AirportDetails airportDetails : cache.values()) {
 			result.add(airportDetails);
@@ -66,14 +67,14 @@ public class DemoApplication<flightDetails> {
 		return result;
 
 	}
-	
+
 	@RequestMapping(value = "/deleteAirport", method = RequestMethod.DELETE)
 	public ArrayList<AirportDetails> deleteAirportMethod(@RequestParam(value = "code") String code) {
-		
+
 		HashMap<String, AirportDetails> cache = getAirportList();
 
 		cache.remove(code);
-		
+
 		ArrayList<AirportDetails> result = new ArrayList<AirportDetails>();
 
 		logger.info("/deleteAirport" + code);
@@ -109,7 +110,7 @@ public class DemoApplication<flightDetails> {
 	}
 
 	private HashMap<String, AirportDetails> getAirportList() {
-		if (AIRPORT_LIST != null) {
+		if (AIRPORT_LIST != null && AIRPORT_LIST.size() > 0) {
 			return AIRPORT_LIST;
 		}
 
@@ -127,19 +128,42 @@ public class DemoApplication<flightDetails> {
 			while (line != null) {
 				line = br.readLine();
 
+				// IndexOf = Includes a tab (\t) and the locatio of the tab is
+				// after the third character of the line
+				// If index of return is "-1" it means that the line doesn't
+				// include the string we are looking for
 				if (line != null && line.indexOf("\t") > 2) {
 					String values[] = line.split("\t");
 					if (values != null && values.length == 2) {
 						String airportCode = values[1];
 						String airportName = values[0];
 						if (!KhalidUtil.isNullOrEmpty(airportCode)) {
-							Address address = new Address("Squirrel Bend Dr.", "Central Ave.", "Toledo", "OH", "43617");
+
+							// default.airport.address.street1
+							String street1 = appProperties.getProperty("default.airport.address.street1");
+							String street2 = appProperties.getProperty("default.airport.address.street2");
+							String city = appProperties.getProperty("default.airport.address.city");
+							String state = appProperties.getProperty("default.airport.address.state");
+							String zip = appProperties.getProperty("default.airport.address.zip");
+
+							// Old Way:
+							// Address address = new Address("Squirrel Bend
+							// Dr.", "Central Ave.", "Toledo", "OH", "43617");
+
+							// New Way:
+							Address address = new Address(street1, street2, city, state, zip);
+
 							String carriersFromPropFile = appProperties.getCarriers(airportCode);
 							Integer outboundsFromPropFile = appProperties.getOutboundOrInbound(airportCode, true);
 							Integer inboundsFromPropFile = appProperties.getOutboundOrInbound(airportCode, false);
+
 							ArrayList<String> carriersList = KhalidUtil.parseCSV(carriersFromPropFile);
+
 							FlightDetails fDetails = new FlightDetails(carriersList, inboundsFromPropFile, outboundsFromPropFile);
-							AIRPORT_LIST.put(airportCode, new AirportDetails(airportCode, airportName, null, address, fDetails));
+
+							AirportDetails airportDetails = new AirportDetails(airportCode, airportName, null, address, fDetails);
+
+							AIRPORT_LIST.put(airportCode, airportDetails);
 						}
 					}
 				}
@@ -155,11 +179,14 @@ public class DemoApplication<flightDetails> {
 				br.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Failed to close the file", e);
+				// e.printStackTrace(); is a NON-professional way to print the
+				// exception on system-out
 			}
 		}
-		return new HashMap<String, AirportDetails>();
-
+		return new HashMap<String, AirportDetails>(); // Returns an Empty list
+														// if list failed to
+														// load
 	}
 
 	// @RequestMapping(value="/enterPhone", method = RequestMethod.POST)
@@ -168,7 +195,7 @@ public class DemoApplication<flightDetails> {
 	// tool on the example Firefox
 
 	@RequestMapping(value = "/enterInfo", method = RequestMethod.POST)
-	public String enterPhoneMethod(@RequestParam(value = "phone") String phoneNo, @RequestParam(value = "code") String code) {
+	public AirportDetails enterPhoneMethod(@RequestParam(value = "phone") String phoneNo, @RequestParam(value = "code") String code) {
 
 		logger.info("/enterPhone: " + phoneNo);
 
@@ -177,13 +204,12 @@ public class DemoApplication<flightDetails> {
 
 		if (airportDetails != null) {
 			airportDetails.setPhoneNumber(phoneNo);
-			return "{'status' : 'ok'}";
-		} else {
-			return "{'status' : 'failed'}";
 		}
+		return airportDetails;
 
 	}
 
+	// Service not related to all of the above
 	@RequestMapping("/add")
 	public int addMethod(@RequestParam(value = "x") Integer a, @RequestParam(value = "y") Integer b) {
 		return (a + b);
