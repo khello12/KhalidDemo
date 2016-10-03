@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.khalid.model.Address;
 import com.khalid.model.AirportDetails;
 import com.khalid.model.FlightDetails;
+import com.khalid.model.StateDetails;
+import com.khalid.util.DatabaseUtil;
 import com.khalid.util.KhalidUtil;
 
 @SpringBootApplication
@@ -28,6 +31,7 @@ public class DemoApplication<flightDetails> {
 											// automatically defines it.
 
 	private static HashMap<String, AirportDetails> AIRPORT_LIST = null;
+	private static List<StateDetails> STATES_LIST = null;
 
 	private static Logger logger = Logger.getLogger(DemoApplication.class);
 
@@ -39,6 +43,17 @@ public class DemoApplication<flightDetails> {
 	public String greetingMethod(@RequestParam(value = "name", defaultValue = "World") String name) {
 		logger.info("/giveMeSalam: " + name);
 		return "Salam " + name;
+	}
+
+	@RequestMapping(value = "/getAllStates", method = RequestMethod.GET)
+	public List<StateDetails> getAllStatesMethod() {
+		logger.info("/getAllStates");
+		
+		if (STATES_LIST == null) {
+			logger.info("*** getAllStates from DB");
+			STATES_LIST = DatabaseUtil.getListStates(appProperties);
+		}
+		return STATES_LIST;
 	}
 
 	@RequestMapping(value = "/lookUp", method = RequestMethod.GET)
@@ -87,20 +102,29 @@ public class DemoApplication<flightDetails> {
 
 	}
 
-	@RequestMapping(value = "/lookUpByDesc", method = RequestMethod.GET)
-	public ArrayList<AirportDetails> lookUpByDescMethod(@RequestParam(value = "keyword") String keyword) {
+	@RequestMapping(value = "/lookUpByDescOrCode", method = RequestMethod.GET)
+	public ArrayList<AirportDetails> lookUpByDescOrCodeMethod(@RequestParam(value = "keyword") String keyword) {
 		HashMap<String, AirportDetails> cache = getAirportList();
-		logger.info("/lookUpByDesc: " + keyword);
+		logger.info("/lookUpByDescOrCode: " + keyword);
 
 		ArrayList<AirportDetails> result = new ArrayList<AirportDetails>();
-		String keywordUpper = keyword.toUpperCase();
+		String keywordUpper = keyword.trim().toUpperCase();
+
+		if (keywordUpper.length() == 3) {
+			AirportDetails airportDetails = cache.get(keywordUpper);
+			if (airportDetails != null) {
+				result.add(airportDetails);
+			}
+		}
 
 		for (AirportDetails airportDetails : cache.values()) {
 			// ...
 			String descUpper = airportDetails.getName().toUpperCase();
 
 			if (descUpper.indexOf(keywordUpper) >= 0) {
-				result.add(airportDetails);
+				if (!result.contains(airportDetails)) {
+					result.add(airportDetails);
+				}
 			}
 		}
 

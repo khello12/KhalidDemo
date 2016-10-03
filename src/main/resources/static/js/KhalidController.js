@@ -3,22 +3,30 @@ angular.module('KhalidApp', []).controller(
 		function($scope, $http) {
 			$scope.greeting = "Airport Details";
 
-			$scope.getAirportInfo = function(airportCode) {
+			$scope.getAirportInfo = function(keyword) {
 				$scope.showSuccess = false;
-				console.log('User Entered: ' + airportCode);
+				console.log('User Entered: ' + keyword);
 				// REST Call "GET"
-				if (airportCode == undefined || airportCode.trim() == '') {
+				if (keyword == undefined || keyword.trim() == '') {
 					return;
 				}
 				
-				var urlREST = 'http://localhost:8080/lookUp?code=' + airportCode;
+				var urlREST = 'http://localhost:8080/lookUpByDescOrCode?keyword=' + keyword;
 				
 				$http.get(urlREST).then(function(response) {
-							$scope.oneAirportDetails = response.data;
-							$scope.allAirports = null;
+					$scope.oneAirportDetails = null;
+					$scope.allAirports = null;
+					
+					if (response.data.length == 1) {
+						$scope.oneAirportDetails = response.data[0];						
+					} else {
+						$scope.multiAirportDetails = response.data;
+					}
+							//$scope.oneAirportDetails = response.data;
+							//$scope.allAirports = null;
 							// console.log('My Response! ' +
 							// JSON.stringify(response));
-						});
+				});
 			}
 
 			$scope.updatePhone = function(phoneNo, airportCode) {
@@ -53,6 +61,15 @@ angular.module('KhalidApp', []).controller(
 						function(response) {
 							$scope.allAirports = response.data;
 							$scope.oneAirportDetails = null;
+						});
+			}
+			
+			$scope.selectAirport = function(airportCode) {
+				console.log('Airport ' + airportCode + " Selected...");
+				$http.get('http://localhost:8080/lookUp?code=' + airportCode).then(
+						function(response) {
+							$scope.oneAirportDetails = response.data;
+							$scope.allAirports = null;
 						});
 			}
 		});
